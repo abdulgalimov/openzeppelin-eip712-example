@@ -6,10 +6,6 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 contract EIP712Example is EIP712 {
     constructor() EIP712("test", "1.0") { }
 
-    function domainSeparator() external view returns (bytes32) {
-        return _domainSeparatorV4();
-    }
-
     function verify(
         bytes memory signature,
         address signer,
