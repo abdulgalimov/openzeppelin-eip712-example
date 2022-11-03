@@ -33,8 +33,8 @@ describe("EIP712", function () {
         ],
       },
       domain: {
-        name: "A Name",
-        version: "1",
+        name: "test",
+        version: "1.0",
         chainId,
         verifyingContract,
       },
@@ -55,6 +55,6 @@ describe("EIP712", function () {
       message.to,
       message.contents
     );
-    expect(recoveredSigner).to.eq(signer);
+    expect(recoveredSigner.toLowerCase()).to.eq(signer.toLowerCase());
   });
 });
