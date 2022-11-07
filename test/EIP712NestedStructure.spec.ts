@@ -43,7 +43,7 @@ describe("EIP712NestedStructure", function () {
           { name: "subject", type: "string" },
           { name: "message", type: "string" },
         ],
-        Mail: [
+        MailWithSubject: [
           { name: "to", type: "address" },
           { name: "content", type: "Content" },
         ],
@@ -54,7 +54,7 @@ describe("EIP712NestedStructure", function () {
         chainId,
         verifyingContract,
       },
-      primaryType: "Mail",
+      primaryType: "MailWithSubject",
       message: mail,
     };
 
