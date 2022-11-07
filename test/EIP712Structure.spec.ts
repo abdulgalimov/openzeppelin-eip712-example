@@ -1,22 +1,29 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-
-import { signTypedMessage, TypedMessage } from "eth-sig-util";
+import {
+  signTypedData,
+  SignTypedDataVersion,
+  TypedMessage,
+} from "@metamask/eth-sig-util";
 import { default as Wallet } from "ethereumjs-wallet";
 
-describe("EIP712", function () {
-  it.only("digest", async function () {
-    const [mailTo] = await ethers.getSigners();
+import { EIP712Structure, EIP712Structure__factory } from "../typechain-types";
 
-    const EIP712Example = await ethers.getContractFactory("EIP712Example");
-    const eip712 = await EIP712Example.deploy();
+describe("EIP712Structure", function () {
+  it("verify", async function () {
+    const [account] = await ethers.getSigners();
+
+    const factory: EIP712Structure__factory = await ethers.getContractFactory(
+      "EIP712Structure"
+    );
+    const eip712 = await factory.deploy();
 
     const chainId = (await eip712.getChainId()).toNumber();
 
     const verifyingContract = eip712.address;
-    const message = {
-      to: mailTo.address,
-      contents: "very interesting",
+    const mail: EIP712Structure.MailStruct = {
+      to: account.address,
+      message: "mail message",
     };
 
     const data: TypedMessage<any> = {
@@ -29,7 +36,7 @@ describe("EIP712", function () {
         ],
         Mail: [
           { name: "to", type: "address" },
-          { name: "contents", type: "string" },
+          { name: "message", type: "string" },
         ],
       },
       domain: {
@@ -39,22 +46,19 @@ describe("EIP712", function () {
         verifyingContract,
       },
       primaryType: "Mail",
-      message,
+      message: mail,
     };
 
     const wallet = Wallet.generate();
-    const signature = signTypedMessage(wallet.getPrivateKey(), {
+    const signature = signTypedData({
+      privateKey: wallet.getPrivateKey(),
       data,
+      version: SignTypedDataVersion.V4,
     });
 
     const signer = wallet.getAddressString();
 
-    const recoveredSigner = await eip712.verify(
-      signature,
-      signer,
-      message.to,
-      message.contents
-    );
+    const recoveredSigner = await eip712.verify(signature, signer, mail);
     expect(recoveredSigner.toLowerCase()).to.eq(signer.toLowerCase());
   });
 });
